@@ -1,0 +1,115 @@
+:root {
+  --bg: #f6f7f5;
+  --card: #ffffff;
+  --ink: #1d2521;
+  --muted: #62706a;
+  --line: #dfe4e0;
+  --accent: #1f6f50;
+  --warn: #9a5b00;
+  --warn-bg: #fff4e0;
+  --err: #a02929;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+/* author rules such as `display: block` would otherwise override the hidden attribute */
+[hidden] { display: none !important; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+#app { position: relative; height: 100%; }
+#map { position: absolute; inset: 0; }
+
+.card {
+  position: absolute;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  padding: 12px 14px;
+}
+
+h2 { margin: 0 0 6px; font-size: 15px; }
+h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+p { margin: 0 0 8px; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+
+/* layer control */
+#layers { top: 12px; left: 12px; width: 210px; z-index: 2; }
+#layers fieldset { border: 0; margin: 8px 0 0; padding: 0; }
+#layers legend { padding: 0; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+#layers label { display: block; padding: 2px 0; cursor: pointer; }
+#soil-legend { display: block; margin-top: 10px; max-width: 100%; border: 1px solid var(--line); }
+
+/* site panel */
+#panel { top: 12px; right: 12px; bottom: 12px; width: 380px; overflow-y: auto; z-index: 2; }
+
+.coords { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.coords code { font-size: 15px; font-weight: 600; }
+button, .btn {
+  font: inherit;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+button:disabled { opacity: 0.6; cursor: default; }
+#goto { display: flex; gap: 6px; margin-bottom: 10px; }
+#goto input { flex: 1; min-width: 0; font: inherit; padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; }
+
+.section { border-top: 1px solid var(--line); padding: 10px 0; }
+.big { font-size: 20px; font-weight: 650; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 6px 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 3px 6px 3px 0; text-align: left; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 500; }
+
+.spinner {
+  display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -2px;
+  border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error { color: var(--err); }
+.flag { background: var(--warn-bg); color: var(--warn); border-radius: 6px; padding: 4px 8px; margin: 6px 0; }
+
+details { margin-top: 8px; font-size: 12px; color: var(--muted); }
+details summary { cursor: pointer; }
+details ul { margin: 4px 0 0; padding-left: 18px; }
+
+/* map markers */
+.wx {
+  min-width: 34px; padding: 1px 5px; text-align: center; border-radius: 11px;
+  font-size: 12px; font-weight: 650; color: #fff; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+}
+.wx-cold { background: #3b6fb6; }
+.wx-mild { background: #2f8f62; }
+.wx-warm { background: #c98a00; }
+.wx-hot { background: #c0392b; }
+.wx-rain { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.55), 0 1px 4px rgba(0,0,0,0.35); }
+
+.hotspot {
+  width: 18px; height: 18px; background: #7a1fa2; border: 2px solid #fff; transform: rotate(45deg);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4); cursor: pointer;
+}
+.pin { width: 16px; height: 16px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; box-shadow: 0 1px 5px rgba(0,0,0,0.5); }
+
+@media (max-width: 720px) {
+  #panel { top: auto; left: 12px; right: 12px; width: auto; height: 46%; }
+  #layers { width: 180px; }
+}

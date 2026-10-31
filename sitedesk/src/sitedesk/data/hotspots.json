@@ -1,0 +1,35 @@
+{
+  "about": "Seed list of the three priority Agent Orange / dioxin hotspots at former US military airbases in Vietnam. Coordinates are approximate reference points (airbase or airport), good to roughly 1-2 km. This says where publicly reported hotspots are, not where contamination starts or ends. Add primary-source citations before anyone relies on it.",
+  "hotspots": [
+    {
+      "id": "bien-hoa",
+      "name": "Bien Hoa airbase",
+      "province": "Dong Nai",
+      "kind": "former military airbase",
+      "summary": "Former US military airbase where Agent Orange herbicides were stored and handled. One of the three priority dioxin hotspots in Vietnam.",
+      "lat": 10.978,
+      "lon": 106.815,
+      "coordinate_basis": "airbase reference point, approximate"
+    },
+    {
+      "id": "da-nang",
+      "name": "Da Nang airport",
+      "province": "Da Nang",
+      "kind": "former military airbase",
+      "summary": "Former US military airbase (now Da Nang International Airport) where Agent Orange herbicides were stored and handled. One of the three priority dioxin hotspots in Vietnam; a joint US-Vietnam remediation programme has been carried out here.",
+      "lat": 16.044,
+      "lon": 108.199,
+      "coordinate_basis": "airport reference point, approximate"
+    },
+    {
+      "id": "phu-cat",
+      "name": "Phu Cat airbase",
+      "province": "Binh Dinh (pre-2025 provincial boundaries)",
+      "kind": "former military airbase",
+      "summary": "Former US military airbase (now Phu Cat Airport) where Agent Orange herbicides were stored and handled. One of the three priority dioxin hotspots in Vietnam.",
+      "lat": 13.955,
+      "lon": 109.042,
+      "coordinate_basis": "airport reference point, approximate"
+    }
+  ]
+}

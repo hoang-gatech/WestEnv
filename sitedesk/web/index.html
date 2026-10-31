@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SiteDesk</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="map" role="application" aria-label="Map of Vietnam. Click a point to get a site profile."></div>
+
+    <div id="layers" class="card">
+      <h2>SiteDesk</h2>
+      <fieldset>
+        <legend>Base map</legend>
+        <label><input type="radio" name="base" value="map" checked> Map</label>
+        <label><input type="radio" name="base" value="terrain"> Terrain (3D relief)</label>
+      </fieldset>
+      <fieldset>
+        <legend>Overlays</legend>
+        <label><input type="checkbox" id="ov-soil"> Soil type (WRB)</label>
+        <label><input type="checkbox" id="ov-weather"> Current weather</label>
+        <label><input type="checkbox" id="ov-hotspots" checked> Dioxin hotspots</label>
+      </fieldset>
+      <img id="soil-legend" hidden alt="Legend: WRB most probable soil group">
+      <p id="layers-note" class="small error" hidden></p>
+    </div>
+
+    <aside id="panel" class="card" aria-live="polite">
+      <div id="panel-empty">
+        <h2>Site profile</h2>
+        <p>Click anywhere in Vietnam to get its coordinates, weather, soil, terrain and distance to known dioxin hotspots.</p>
+        <p class="muted">Screening-level context from public datasets and models. Not a survey or laboratory result.</p>
+      </div>
+      <div id="panel-body" hidden></div>
+    </aside>
+  </div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+ "type": "Point",
+ "coordinates": [
+  106.82,
+  10.98
+ ],
+ "query_time_s": 15.440159320831299,
+ "wrb_class_name": "Acrisols",
+ "wrb_class_value": 0,
+ "wrb_class_probability": [
+  [
+   "Acrisols",
+   22
+  ],
+  [
+   "Cambisols",
+   12
+  ],
+  [
+   "Vertisols",
+   10
+  ],
+  [
+   "Andosols",
+   9
+  ],
+  [
+   "Lixisols",
+   8
+  ]
+ ]
+}

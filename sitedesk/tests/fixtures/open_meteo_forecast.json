@@ -1,0 +1,73 @@
+{
+ "latitude": 11.001758,
+ "longitude": 106.835106,
+ "generationtime_ms": 0.23758411407470703,
+ "utc_offset_seconds": 25200,
+ "timezone": "Asia/Ho_Chi_Minh",
+ "timezone_abbreviation": "GMT+7",
+ "elevation": 29.0,
+ "current_units": {
+  "time": "iso8601",
+  "interval": "seconds",
+  "temperature_2m": "\u00b0C",
+  "relative_humidity_2m": "%",
+  "precipitation": "mm",
+  "wind_speed_10m": "km/h",
+  "weather_code": "wmo code"
+ },
+ "current": {
+  "time": "2026-10-26T16:15",
+  "interval": 900,
+  "temperature_2m": 30.6,
+  "relative_humidity_2m": 61,
+  "precipitation": 0.0,
+  "wind_speed_10m": 11.8,
+  "weather_code": 0
+ },
+ "daily_units": {
+  "time": "iso8601",
+  "weather_code": "wmo code",
+  "temperature_2m_max": "\u00b0C",
+  "temperature_2m_min": "\u00b0C",
+  "precipitation_sum": "mm",
+  "precipitation_probability_max": "%",
+  "wind_speed_10m_max": "km/h"
+ },
+ "daily": {
+  "time": [
+   "2026-10-26",
+   "2026-10-27",
+   "2026-10-28"
+  ],
+  "weather_code": [
+   3,
+   51,
+   95
+  ],
+  "temperature_2m_max": [
+   32.3,
+   32.2,
+   31.3
+  ],
+  "temperature_2m_min": [
+   24.8,
+   23.9,
+   25.0
+  ],
+  "precipitation_sum": [
+   0.0,
+   0.6,
+   16.4
+  ],
+  "precipitation_probability_max": [
+   16,
+   58,
+   90
+  ],
+  "wind_speed_10m_max": [
+   12.9,
+   12.5,
+   6.4
+  ]
+ }
+}
