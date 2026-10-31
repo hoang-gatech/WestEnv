@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.staticfiles import StaticFiles
 
 from . import http
@@ -23,6 +23,21 @@ from .tools import hotspots, weather
 from .tools.profile import SECTIONS
 
 WEB_DIR = Path(__file__).resolve().parents[2] / "web"
+
+
+class RevalidatedStaticFiles(StaticFiles):
+    """Static files the browser must revalidate on every load.
+
+    Starlette sends Last-Modified and ETag but no Cache-Control, so browsers cache by heuristic
+    and can keep an old stylesheet or script for hours after an edit: in Chromium a plain reload
+    kept serving the old CSS. `no-cache` still allows a 304, so an unchanged file costs a round
+    trip and no download.
+    """
+
+    def file_response(self, *args: Any, **kwargs: Any) -> Response:
+        response = super().file_response(*args, **kwargs)
+        response.headers["Cache-Control"] = "no-cache"
+        return response
 
 
 @asynccontextmanager
@@ -84,7 +99,7 @@ async def hotspot_layer() -> dict[str, Any]:
 
 
 if WEB_DIR.is_dir():  # mounted last so it never shadows /api
-    app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")
+    app.mount("/", RevalidatedStaticFiles(directory=WEB_DIR, html=True), name="web")
 
 
 def main(argv: list[str] | None = None) -> None:

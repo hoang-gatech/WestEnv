@@ -6,14 +6,14 @@
   <title>SiteDesk</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
   <div id="app">
     <div id="map" role="application" aria-label="Map of Vietnam. Click a point to get a site profile."></div>
 
-    <div id="layers" class="card">
-      <h2>SiteDesk</h2>
+    <details id="layers" class="card" open>
+      <summary><h2>Map layers</h2></summary>
       <fieldset>
         <legend>Base map</legend>
         <label><input type="radio" name="base" value="map" checked> Map</label>
@@ -27,7 +27,7 @@
       </fieldset>
       <img id="soil-legend" hidden alt="Legend: WRB most probable soil group">
       <p id="layers-note" class="small error" hidden></p>
-    </div>
+    </details>
 
     <aside id="panel" class="card" aria-live="polite">
       <div id="panel-empty">
@@ -40,6 +40,6 @@
   </div>
 
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

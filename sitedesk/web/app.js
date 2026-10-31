@@ -200,6 +200,7 @@ function note(text) {
   const el = $('#layers-note');
   el.textContent = text || '';
   el.hidden = !text;
+  if (text) $('#layers').open = true; // a failure message inside a collapsed card would go unseen
 }
 
 function header(lat, lon) {

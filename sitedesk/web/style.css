@@ -42,8 +42,22 @@ p { margin: 0 0 8px; }
 .muted { color: var(--muted); }
 .small { font-size: 12px; }
 
-/* layer control */
+/* layer control: a native <details>, so it works from the keyboard and with screen readers.
+   The arrow is drawn inline at the start of the heading rather than as a flex item of <summary>,
+   so it always shares the label's line. */
 #layers { top: 12px; left: 12px; width: 210px; z-index: 2; }
+#layers:not([open]) { width: auto; }
+#layers summary { display: block; cursor: pointer; list-style: none; user-select: none; }
+#layers summary::-webkit-details-marker { display: none; }
+#layers summary h2 { margin: 0; white-space: nowrap; }
+#layers summary h2::before {
+  content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 10px; vertical-align: middle;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: translate(-2px, 0) rotate(-45deg); transition: transform 0.15s;
+}
+#layers[open] summary h2::before { transform: translate(0, -2px) rotate(45deg); }
+#layers summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { #layers summary h2::before { transition: none; } }
 #layers fieldset { border: 0; margin: 8px 0 0; padding: 0; }
 #layers legend { padding: 0; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 #layers label { display: block; padding: 2px 0; cursor: pointer; }
@@ -88,9 +102,10 @@ th { color: var(--muted); font-weight: 500; }
 .error { color: var(--err); }
 .flag { background: var(--warn-bg); color: var(--warn); border-radius: 6px; padding: 4px 8px; margin: 6px 0; }
 
-details { margin-top: 8px; font-size: 12px; color: var(--muted); }
-details summary { cursor: pointer; }
-details ul { margin: 4px 0 0; padding-left: 18px; }
+/* "Sources & caveats" disclosures in the site panel */
+#panel details { margin-top: 8px; font-size: 12px; color: var(--muted); }
+#panel details summary { cursor: pointer; }
+#panel details ul { margin: 4px 0 0; padding-left: 18px; }
 
 /* map markers */
 .wx {

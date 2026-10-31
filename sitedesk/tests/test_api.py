@@ -58,3 +58,13 @@ def test_serves_the_map_page_without_shadowing_the_api(client):
     page = client.get("/")
     assert page.status_code == 200 and "SiteDesk" in page.text
     assert client.get("/api/health").status_code == 200
+
+
+@pytest.mark.parametrize("path", ["/", "/style.css", "/app.js"])
+def test_front_end_files_are_revalidated_so_edits_reach_the_browser(client, path):
+    # Without Cache-Control browsers cache these by heuristic: a plain reload keeps the old copy.
+    first = client.get(path)
+    assert first.headers["cache-control"] == "no-cache"
+    again = client.get(path, headers={"If-None-Match": first.headers["etag"]})
+    assert again.status_code == 304  # still cheap: an unchanged file is not downloaded again
+    assert again.headers["cache-control"] == "no-cache"
