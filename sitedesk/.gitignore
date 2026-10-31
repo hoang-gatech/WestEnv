@@ -5,3 +5,5 @@
 .ruff_cache/
 __pycache__/
 .cache/
+# the chat config holds API keys: never commit it
+sitedesk.yaml

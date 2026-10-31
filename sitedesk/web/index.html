@@ -6,7 +6,7 @@
   <title>SiteDesk</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
   <div id="app">
@@ -39,9 +39,30 @@
         <div id="panel-body" hidden></div>
       </div>
     </details>
+
+    <details id="chat" class="card">
+      <summary><h2>Ask</h2></summary>
+      <div id="chat-body">
+        <div id="chat-log" role="log" aria-live="polite" aria-label="Conversation"></div>
+        <div id="chat-context" hidden>
+          <span id="chat-context-text"></span>
+          <button type="button" id="chat-context-clear" aria-label="Do not use the selected point" title="Do not use the selected point">&times;</button>
+        </div>
+        <form id="chat-form">
+          <textarea id="chat-input" rows="2" maxlength="4000" aria-label="Your question" placeholder="Ask about a site (Enter to send)"></textarea>
+          <button type="submit" id="chat-send">Send</button>
+        </form>
+        <div id="chat-settings">
+          <select id="chat-endpoint" aria-label="Provider"></select>
+          <select id="chat-model" aria-label="Model"></select>
+          <button type="button" id="chat-clear" class="link">Clear</button>
+        </div>
+      </div>
+    </details>
   </div>
 
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=5"></script>
+  <script src="chat.js?v=5"></script>
 </body>
 </html>

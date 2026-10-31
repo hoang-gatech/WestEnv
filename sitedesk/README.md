@@ -2,18 +2,21 @@
 
 Point-scale site screening for Vietnam. Click a location, get its weather, soil, terrain,
 nearby surface water and distance to known dioxin hotspots, from public datasets. The same data
-is exposed as [MCP](https://modelcontextprotocol.io) tools so Claude can answer questions about
-a site and say where each number came from.
+is exposed as [MCP](https://modelcontextprotocol.io) tools, so an LLM can answer questions about
+a site and say where each number came from: from Claude Code or LibreChat over MCP, or from the
+**Ask** box on the map page.
 
-**Status: slice 1 of 4.** Data tools, MCP server and map UI work. Not built yet: the Claude agent
-loop, retrieval over regulations and past reports with citations, lab-data ingestion and report
-drafting, and the evaluation harness (`eval/README.md` has the plan).
+**Status: slice 2 of 4.** Data tools, MCP server, map UI and a chat assistant work (the chat has
+not been run against a live vendor API yet, see below). Not built yet: retrieval over regulations
+and past reports with citations, lab-data ingestion and report drafting, and the evaluation
+harness (`eval/README.md` has the plan).
 
 ```
- browser (MapLibre)  ──►  FastAPI  ──┐
-                                     ├──►  tools/  ──►  Open-Meteo · SoilGrids · Overpass · Nominatim
- Claude Code / Desktop ──►  MCP  ────┘          │
-                                                └─ cache (memory + disk) · retries · units checks
+ browser (MapLibre + Ask box) ──►  FastAPI ──► chat agent ──► Gemini · Claude · OpenAI-compatible
+                                      │            │
+                                      │            ▼  in-process
+ Claude Code · LibreChat ──►  MCP ────┴──►  tools/  ──►  Open-Meteo · SoilGrids · Overpass · Nominatim
+                                                 └─ cache (memory + disk) · retries · units checks
 ```
 
 ## Tools
@@ -57,7 +60,58 @@ to a known dioxin hotspot?"* A link like `http://127.0.0.1:8000/#10.978,106.815`
 that point.
 
 Settings (environment): `SITEDESK_CONTACT`, `SITEDESK_CACHE_DIR` (default `~/.cache/sitedesk`;
-empty disables the disk cache), `SITEDESK_OVERPASS_URLS` (comma-separated mirrors).
+empty disables the disk cache), `SITEDESK_OVERPASS_URLS` (comma-separated mirrors),
+`SITEDESK_CONFIG` (path of the chat config, default `sitedesk.yaml` in the project root).
+
+## Chat: the Ask box
+
+The map page has a third collapsible card, **Ask**. A question goes to `/api/chat`, where a
+vendor-neutral agent loop lets the model call the same tools as above, then streams the progress
+(`get_soil… 12.1 s ✓`) and the answer back. The point selected on the map is sent along, so "here"
+and "this site" work. The loop runs the tools in-process on the MCP server object, so the chat box,
+Claude Code and LibreChat always see exactly the same tools, descriptions and error messages.
+
+```bash
+pip install -e ".[chat]"                 # one official SDK per vendor (".[dev]" includes it)
+cp sitedesk.example.yaml sitedesk.yaml   # git-ignored
+cp .env.example .env                     # git-ignored; or export the variables instead
+#   ...put a key in .env, for example GEMINI_API_KEY=...
+python -m sitedesk.api
+```
+
+`sitedesk.yaml` is LibreChat-style: a list of endpoints, each with a provider, a key and models.
+
+```yaml
+endpoints:
+  - name: gemini
+    provider: google                 # google | anthropic | openai (any OpenAI-compatible API)
+    apiKey: "${GEMINI_API_KEY}"      # from the environment or the .env next to this file, or the key itself
+    models: [gemini-flash-latest]    # the first one is the default
+```
+
+| `provider` | SDK | Notes |
+|---|---|---|
+| `google` | `google-genai` | Gemini function calling; thought signatures are returned untouched, as Gemini 3 requires |
+| `anthropic` | `anthropic` | Claude Messages API; adaptive thinking (the model default); `refusal` stop reasons handled; server-side refusal fallbacks on the models that support them (`refusalFallbacks: false` behind Bedrock, Vertex or a gateway) |
+| `openai` | `openai` | any OpenAI-compatible Chat Completions API via `baseURL` (OpenAI, OpenRouter, Groq, Mistral, a local server) |
+
+The file is re-read when it changes, so no restart is needed after editing it. Other settings:
+`chat.defaultEndpoint`, `chat.maxToolRounds` (default 6), `chat.systemPrompt`, and per endpoint
+`maxOutputTokens`. **Keys stay on the server**: they are never in an API response, an error
+message or a log line (there are tests for this), and a typo in a key *name* is reported without
+echoing the value. Put the keys in `.env` or the environment and keep `sitedesk.yaml` out of git
+(it is in `.gitignore`); if you write a literal key into the YAML, that file must never be committed.
+
+What the server enforces: models come from an allow-list in the YAML (the browser cannot pick an
+arbitrary one), questions are capped at 4000 characters with at most 20 history entries, at most 3
+questions run at once, a question stops after `maxToolRounds` rounds of tool calls, and one tool
+result is clipped at 24,000 characters. Each answer shows its tool timings and token count, so cost
+per question is a number you can read off the page.
+
+What it does **not** enforce: authentication. The server listens on 127.0.0.1 by default; do not
+expose it without adding auth, because anyone who can reach `/api/chat` spends your key's quota.
+Also note that Google's pricing page says Gemini free-tier prompts and outputs can be used to improve
+its products, so keep the free tier for public data like this, not client data.
 
 ## What the upstream services taught me
 
@@ -85,15 +139,25 @@ These shaped the design more than anything else.
 ## Tests
 
 ```bash
-pytest                    # 133 tests: logic, recorded real responses, mocked HTTP, real MCP client
+pytest                    # 244 tests: logic, recorded real responses, mocked HTTP, real MCP client, chat
 pytest -m live -s         # the same tools against the real services, with timings
 ruff check . && ruff format --check .
 ```
 
 The fixtures in `tests/fixtures/` are real responses recorded from the services. Mocked tests
-cannot show the services still behave that way, which is what the live tests are for. The
-front-end JavaScript has no automated tests: I checked it by hand in headless Chrome (real click,
-every overlay, a hash link, phone width), and those scripts are not in the repo.
+cannot show the services still behave that way, which is what the live tests are for.
+
+The chat is tested at three levels. The agent loop runs with a scripted model against the real
+tools. Each vendor adapter runs on that vendor's **real SDK** against a small local fake of its API
+(`tests/fake_vendor.py`), which asserts what goes over the wire (paths, headers, bodies, thought
+signatures, error mapping) and how the SDK parses a reply. And one test per vendor sends a question
+through HTTP, the real agent loop, the real MCP tools, the real SDK and the fake server, so the real
+tool schemas and results go through each vendor's serialisation.
+
+The front-end JavaScript has no automated tests: I checked it by hand in headless Chromium with a
+scripted fake model (real clicks and keystrokes: ask, tool progress, Stop, errors, the point chip,
+an `<img onerror>` in an answer staying inert text, three screen widths, the unconfigured state),
+and those scripts are not in the repo.
 
 ## Known gaps and things to verify before relying on this
 
@@ -102,20 +166,32 @@ every overlay, a hash link, phone width), and those scripts are not in the repo.
   and I did not check them against a primary source, and there are no citations yet.
 - **The USDA texture classifier** is checked at one interior point per class and for full
   coverage of the triangle (no gaps), but not against a reference implementation.
+- **The chat has never run against a live vendor API.** There are no keys in my environment, so
+  everything above is verified against local fakes and the vendors' documented formats. The first
+  real run can still surface a wrong model ID (the ones in `sitedesk.example.yaml` come from the
+  docs and a search, and model names change often) or a schema a vendor rejects. A wrong model ID
+  or key shows up as a readable error in the chat, not a crash.
 - **Licences.** Open-Meteo's free API is for non-commercial use: that needs a paid plan or
   self-hosting before this becomes a commercial product. OSM's public tile servers, Overpass and
   Nominatim are best-effort services with usage policies and are not meant to back a product.
-  Attribution is shown in the map for OSM, SoilGrids (CC BY 4.0) and the terrain tiles.
+- **Map attribution is hidden while the Site profile panel is open.** OSM, SoilGrids (CC BY 4.0)
+  and the terrain tiles are credited in the bottom-right corner of the map, which the open panel
+  covers (measured: about 91% of it, on desktop and phone). Collapsing the panel shows it. OSM
+  requires the credit to be visible, so this needs fixing before the page is shown to anyone.
 - **Not tried yet inside Claude Code or Claude Desktop.** The server is verified with the MCP
   Python client over stdio and streamable HTTP.
 - **Administrative names** from OSM may lag Vietnam's 2025 provincial and commune mergers.
 
 ## Next
 
-1. Agent loop: Claude with these tools over MCP, answers grounded and cited, with the eval
-   harness to measure it.
-2. Retrieval over public standards and reports (QCVN soil quality, Australian NEPM) with
+1. Run the chat against a live vendor and read the real numbers off the page: cost and latency
+   per question, which tools the model picks, where it invents or hedges.
+2. The evaluation harness: the same questions through `chat.agent.run_chat` for each vendor,
+   scored on tool choice, grounding and cost (`eval/README.md`).
+3. `find_place`: a place-name to coordinates tool, so "soil at Bảo Lộc?" does not rely on the model
+   guessing coordinates.
+4. Retrieval over public standards and reports (QCVN soil quality, Australian NEPM) with
    citations and a "no source, no answer" rule.
-3. Lab CSV in, exceedances against the standard out, a report section drafted into a fixed template.
-4. SoilGrids via cloud-optimised GeoTIFF range reads instead of the REST API, which should remove
-   most of the soil latency (expected, not measured).
+5. Lab CSV in, exceedances against the standard out, a report section drafted into a fixed template.
+6. Authentication on `/api/chat`, token streaming, and SoilGrids via cloud-optimised GeoTIFF range
+   reads instead of the REST API (which should remove most of the soil latency: expected, not measured).

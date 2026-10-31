@@ -264,6 +264,8 @@ function selectPoint(lat, lon, fly = false) {
   if (controller) controller.abort();
   controller = new AbortController();
   history.replaceState(null, '', `#${lat},${lon}`);
+  window.sitedeskPoint = { lat, lon }; // read by chat.js, which may load after a #hash point is selected
+  document.dispatchEvent(new CustomEvent('sitedesk:point', { detail: { lat, lon } })); // the chat uses it as context
   pin.setLngLat([lon, lat]).addTo(map);
   if (fly) map.flyTo({ center: [lon, lat], zoom: Math.max(map.getZoom(), 9) });
   $('#panel').open = true; // a point's profile must not load into a collapsed panel

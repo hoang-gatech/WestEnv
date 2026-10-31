@@ -14,10 +14,13 @@ dependencies = [
     "pydantic>=2.10,<3",
     "fastapi>=0.115",
     "uvicorn>=0.30",
+    "pyyaml>=6",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-asyncio>=0.24", "respx>=0.22", "ruff>=0.6"]
+# One official SDK per vendor; the chat assistant imports only the ones sitedesk.yaml uses.
+chat = ["anthropic>=2,<3", "google-genai>=2,<3", "openai>=3,<4"]
+dev = ["sitedesk[chat]", "pytest>=8", "pytest-asyncio>=0.24", "respx>=0.22", "ruff>=0.6"]
 
 [project.scripts]
 sitedesk-mcp = "sitedesk.mcp_server:main"

@@ -3,10 +3,11 @@
     python -m sitedesk.api            # http://127.0.0.1:8000
 
 The map page calls /api/point/{section} once per section, in parallel, so soil (slow) never
-holds up weather (fast).
+holds up weather (fast). /api/chat streams a tool-using answer as server-sent events.
 """
 
 import argparse
+import json
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -15,9 +16,11 @@ from typing import Any
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Query, Response
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import http
+from .chat.service import ChatError, ChatRequest, chat_service, shutdown_chat
 from .errors import UpstreamError
 from .tools import hotspots, weather
 from .tools.profile import SECTIONS
@@ -45,6 +48,7 @@ async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
     try:
         yield
     finally:
+        await shutdown_chat()
         await http.aclose()
 
 
@@ -96,6 +100,31 @@ async def hotspot_layer() -> dict[str, Any]:
         ],
         "about": dataset["about"],
     }
+
+
+@app.get("/api/chat/config")
+async def chat_config() -> dict[str, Any]:
+    """Which endpoints and models the chat can use. Never includes a key."""
+    return chat_service().public_config()
+
+
+@app.post("/api/chat")
+async def chat(request: ChatRequest) -> StreamingResponse:
+    service = chat_service()
+    try:
+        prepared = service.prepare(request)  # refuse what can be refused before streaming starts
+    except ChatError as exc:
+        raise HTTPException(exc.status, str(exc)) from exc
+
+    async def events() -> AsyncIterator[str]:
+        async for event in service.stream(prepared, request):
+            yield f"event: {event['type']}\ndata: {json.dumps(event, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 if WEB_DIR.is_dir():  # mounted last so it never shadows /api

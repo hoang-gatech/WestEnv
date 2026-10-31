@@ -1,0 +1,42 @@
+# SiteDesk chat assistant: endpoints, models and API keys (LibreChat-style).
+#
+#   cp sitedesk.example.yaml sitedesk.yaml     # sitedesk.yaml is git-ignored
+#   cp .env.example .env                       # or export the variables; .env is git-ignored too
+#
+# Keys: write "${NAME}" and set NAME in the environment or in a .env file next to this file,
+# exactly as in LibreChat. A literal key also works, but then this file must never be committed.
+# Keys stay on the server and are never sent to the browser.
+#
+# The file is re-read when it changes: no restart needed after editing it.
+
+version: 1
+
+chat:
+  defaultEndpoint: gemini     # the endpoint selected when the chat opens
+  maxToolRounds: 6            # model <-> tool round trips allowed per question
+  # systemPrompt: |           # optional extra instructions appended to the built-in prompt
+  #   Answer in Vietnamese when the question is in Vietnamese.
+
+endpoints:
+  # Google Gemini. Model IDs change often: check https://ai.google.dev/gemini-api/docs/models.
+  # The first model in each list is the default.
+  - name: gemini
+    provider: google
+    apiKey: "${GEMINI_API_KEY}"
+    models: [gemini-flash-latest, gemini-pro-latest]
+
+  # Anthropic Claude.
+  - name: claude
+    provider: anthropic
+    apiKey: "${ANTHROPIC_API_KEY}"
+    models: [claude-opus-5-5, claude-sonnet-5-5, claude-haiku-5-5]
+    # refusalFallbacks: true  # re-run a request the safety classifiers declined on another Claude model
+    #                         # (server-side; Claude API only: set false behind Bedrock, Vertex or a gateway)
+
+  # Any OpenAI-compatible API (OpenAI, OpenRouter, Groq, Mistral, a local server, ...).
+  # - name: openrouter
+  #   provider: openai
+  #   baseURL: https://openrouter.ai/api/v1
+  #   apiKey: "${OPENROUTER_API_KEY}"
+  #   models: [replace-with/a-model-that-supports-tool-calling]
+  #   maxOutputTokens: 4000

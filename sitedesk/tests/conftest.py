@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+from fake_vendor import FakeVendor
 
 from sitedesk import cache, http
 
@@ -30,3 +31,11 @@ def isolated(monkeypatch, request):
 async def close_http_client():
     yield
     await http.aclose()
+
+
+@pytest.fixture
+def vendor():
+    """A local fake of a vendor API; see fake_vendor.py."""
+    server = FakeVendor()
+    yield server
+    server.close()
