@@ -225,7 +225,7 @@ function header(lat, lon) {
     else input.setCustomValidity('Enter "lat, lon" in decimal degrees');
   } }, input, h('button', { type: 'submit' }, 'Go'));
   input.addEventListener('input', () => input.setCustomValidity(''));
-  return h('div', {}, h('h2', {}, 'Site profile'), h('div', { class: 'coords' }, h('code', {}, text), copy), form);
+  return h('div', {}, h('div', { class: 'coords' }, h('code', {}, text), copy), form);
 }
 
 function skeleton(name) {
@@ -266,6 +266,7 @@ function selectPoint(lat, lon, fly = false) {
   history.replaceState(null, '', `#${lat},${lon}`);
   pin.setLngLat([lon, lat]).addTo(map);
   if (fly) map.flyTo({ center: [lon, lat], zoom: Math.max(map.getZoom(), 9) });
+  $('#panel').open = true; // a point's profile must not load into a collapsed panel
   $('#panel-empty').hidden = true;
   panelBody.hidden = false;
   panelBody.replaceChildren(header(lat, lon), ...AUTO_SECTIONS.map(skeleton), waterSkeleton(lat, lon, myToken));

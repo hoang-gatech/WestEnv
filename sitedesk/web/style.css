@@ -42,29 +42,36 @@ p { margin: 0 0 8px; }
 .muted { color: var(--muted); }
 .small { font-size: 12px; }
 
-/* layer control: a native <details>, so it works from the keyboard and with screen readers.
-   The arrow is drawn inline at the start of the heading rather than as a flex item of <summary>,
-   so it always shares the label's line. */
-#layers { top: 12px; left: 12px; width: 210px; z-index: 2; }
-#layers:not([open]) { width: auto; }
-#layers summary { display: block; cursor: pointer; list-style: none; user-select: none; }
-#layers summary::-webkit-details-marker { display: none; }
-#layers summary h2 { margin: 0; white-space: nowrap; }
-#layers summary h2::before {
+/* Collapsible cards (map layers, site profile): a native <details>, so they work from the keyboard
+   and with screen readers. The arrow is drawn inline at the start of the heading rather than as a
+   flex item of <summary>, so it always shares the label's line. */
+details.card > summary { display: block; cursor: pointer; list-style: none; user-select: none; }
+details.card > summary::-webkit-details-marker { display: none; }
+details.card > summary h2 { margin: 0; white-space: nowrap; }
+details.card > summary h2::before {
   content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 10px; vertical-align: middle;
   border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
   transform: translate(-2px, 0) rotate(-45deg); transition: transform 0.15s;
 }
-#layers[open] summary h2::before { transform: translate(0, -2px) rotate(45deg); }
-#layers summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
-@media (prefers-reduced-motion: reduce) { #layers summary h2::before { transition: none; } }
+details.card[open] > summary h2::before { transform: translate(0, -2px) rotate(45deg); }
+details.card > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { details.card > summary h2::before { transition: none; } }
+
+/* layer control */
+#layers { top: 12px; left: 12px; width: 210px; z-index: 2; }
+#layers:not([open]) { width: auto; }
 #layers fieldset { border: 0; margin: 8px 0 0; padding: 0; }
 #layers legend { padding: 0; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 #layers label { display: block; padding: 2px 0; cursor: pointer; }
 #soil-legend { display: block; margin-top: 10px; max-width: 100%; border: 1px solid var(--line); }
 
-/* site panel */
-#panel { top: 12px; right: 12px; bottom: 12px; width: 380px; overflow-y: auto; z-index: 2; }
+/* site panel. The card has no padding of its own: the heading row carries it and stays pinned
+   while the profile scrolls, so the panel can be collapsed from anywhere in it. */
+#panel { top: 12px; right: 12px; bottom: 12px; width: 380px; padding: 0; overflow-y: auto; z-index: 2; }
+#panel:not([open]) { bottom: auto; width: auto; }
+#panel > summary { position: sticky; top: 0; z-index: 1; padding: 12px 14px; background: var(--card); }
+#panel > summary:focus-visible { outline-offset: -3px; } /* the scrolling card would clip an outer ring */
+#panel-content { padding: 6px 14px 12px; }
 
 .coords { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .coords code { font-size: 15px; font-weight: 600; }
@@ -126,5 +133,6 @@ th { color: var(--muted); font-weight: 500; }
 
 @media (max-width: 720px) {
   #panel { top: auto; left: 12px; right: 12px; width: auto; height: 46%; }
+  #panel:not([open]) { top: 12px; bottom: auto; left: auto; height: auto; }
   #layers { width: 180px; }
 }

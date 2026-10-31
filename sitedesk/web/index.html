@@ -6,7 +6,7 @@
   <title>SiteDesk</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <div id="app">
@@ -29,17 +29,19 @@
       <p id="layers-note" class="small error" hidden></p>
     </details>
 
-    <aside id="panel" class="card" aria-live="polite">
-      <div id="panel-empty">
-        <h2>Site profile</h2>
-        <p>Click anywhere in Vietnam to get its coordinates, weather, soil, terrain and distance to known dioxin hotspots.</p>
-        <p class="muted">Screening-level context from public datasets and models. Not a survey or laboratory result.</p>
+    <details id="panel" class="card" open>
+      <summary><h2>Site profile</h2></summary>
+      <div id="panel-content" aria-live="polite">
+        <div id="panel-empty">
+          <p>Click anywhere in Vietnam to get its coordinates, weather, soil, terrain and distance to known dioxin hotspots.</p>
+          <p class="muted">Screening-level context from public datasets and models. Not a survey or laboratory result.</p>
+        </div>
+        <div id="panel-body" hidden></div>
       </div>
-      <div id="panel-body" hidden></div>
-    </aside>
+    </details>
   </div>
 
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
